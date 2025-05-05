@@ -13,7 +13,10 @@ st.set_page_config(
     page_title="ClassTracker Demo",
     page_icon="📚",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
+    menu_items={
+        'About': "# ClassTracker\nA demo attendance tracking application for educational institutions"
+    }
 )
 
 # Load custom CSS
@@ -33,17 +36,20 @@ def load_css():
             }
             
             .main-header {
-                background-color: #f0f2f6;
-                padding: 1rem;
-                margin-bottom: 1rem;
+                background-color: #1e1e2e;
+                color: white;
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
                 border-radius: 5px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             }
             
             .attendance-card {
-                background-color: white;
+                background-color: #2a2a3a;
+                color: white;
                 border-radius: 5px;
                 padding: 1rem;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
                 margin-bottom: 1rem;
             }
             
@@ -68,6 +74,83 @@ def main():
     
     if 'user_id' not in st.session_state:
         st.session_state.user_id = None
+    
+    # Apply global styling for text inputs and dark theme
+    st.markdown("""
+    <style>
+    /* Global Dark Theme Styling */
+    .stApp {
+        background-color: #1a1a2e;
+        color: white;
+    }
+    
+    /* Text inputs styling */
+    .stTextInput>div>div>input, 
+    .stTextArea>div>div>textarea,
+    .stSelectbox>div>div>div>div>div>input {
+        background-color: #2e2e3e !important;
+        color: white !important;
+        border: 1px solid #4e4e5e !important;
+        border-radius: 5px !important;
+        padding: 12px 15px !important;
+        font-size: 16px !important;
+    }
+    
+    .stTextInput>div>div>input:focus, 
+    .stTextArea>div>div>textarea:focus,
+    .stSelectbox>div>div>div>div>div>input:focus {
+        border-color: #6e6e8e !important;
+        box-shadow: 0 0 0 1px #6e6e8e !important;
+    }
+    
+    /* Sidebar styling */
+    .css-1d391kg {
+        background-color: #2a2a3a;
+    }
+    
+    /* Make labels white */
+    label, .stRadio label, .stCheckbox label {
+        color: white !important;
+    }
+    
+    /* Style buttons */
+    .stButton>button {
+        background-color: #ff5a5f;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+    
+    /* Style dataframes */
+    .dataframe {
+        background-color: #2a2a3a !important;
+        color: white !important;
+    }
+    
+    /* Chat message styling */
+    .chat-message-user {
+        background-color: #3e3e5e;
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 10px 0 10px auto;
+        max-width: 80%;
+        text-align: right;
+    }
+    
+    .chat-message-ai {
+        background-color: #1e1e2e;
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 10px auto 10px 0;
+        max-width: 80%;
+        border: 1px solid #3e3e5e;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
     # Try to load CSS
     try:
@@ -177,6 +260,12 @@ def show_navigation():
         menu_icon="cast",
         default_index=0,
         orientation="horizontal",
+        styles={
+            "container": {"padding": "0!important", "background-color": "#2a2a3a"},
+            "icon": {"color": "white", "font-size": "16px"},
+            "nav-link": {"color": "white", "font-size": "16px", "text-align": "center"},
+            "nav-link-selected": {"background-color": "#ff5a5f"},
+        }
     )
     
     # Display different content based on selection
@@ -468,7 +557,12 @@ def show_professor_dashboard():
                 markers=True,
                 title="Class Attendance Trend"
             )
-            fig.update_layout(yaxis_range=[50, 100])
+            fig.update_layout(
+                yaxis_range=[50, 100],
+                paper_bgcolor="#2a2a3a",
+                plot_bgcolor="#2a2a3a",
+                font=dict(color="white")
+            )
             st.plotly_chart(fig, use_container_width=True)
             
             # Students at risk
@@ -719,7 +813,7 @@ def show_professor_attendance():
             qr.make(fit=True)
             
             # Create image
-            img = qr.make_image(fill_color="black", back_color="white")
+            img = qr.make_image(fill_color="white", back_color="black")
             
             # Save to bytes
             img_byte_arr = io.BytesIO()
@@ -964,16 +1058,19 @@ def show_schedule():
         .schedule-table td {
             text-align: center;
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid #444;
+            color: white;
+            background-color: #2a2a3a;
         }
         .schedule-table th {
             text-align: center;
-            background-color: #f2f2f2;
+            background-color: #3a3a4a;
+            color: white;
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid #444;
         }
         .class-cell {
-            background-color: #e6f7ff;
+            background-color: #3e3e5e;
             border-radius: 5px;
             padding: 5px;
         }
@@ -1131,21 +1228,23 @@ def show_ai_assistant():
     for message in st.session_state.chat_history:
         if message['role'] == 'user':
             st.markdown(f"""
-            <div style="background-color:#e6f7ff;padding:10px;border-radius:5px;margin-bottom:10px;text-align:right;">
-                <p style="margin:0;">{message['content']}</p>
+            <div class="chat-message-user">
+                <p>{message['content']}</p>
                 <small>You</small>
             </div>
             """, unsafe_allow_html=True)
         else:
             st.markdown(f"""
-            <div style="background-color:#f0f0f0;padding:10px;border-radius:5px;margin-bottom:10px;">
-                <p style="margin:0;">{message['content']}</p>
+            <div class="chat-message-ai">
+                <p>{message['content']}</p>
                 <small>AI Assistant</small>
             </div>
             """, unsafe_allow_html=True)
     
-    # Input for new question
-    user_question = st.text_input("Type your question here...")
+    # Input for new question wrapped in a div with the chat-input-container class
+    st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
+    user_question = st.text_input("What can I help you with today?")
+    st.markdown('</div>', unsafe_allow_html=True)
     
     if st.button("Send") and user_question:
         # Add user message to chat history
@@ -1282,7 +1381,7 @@ def show_settings():
         st.subheader("Display Settings")
         
         # Theme setting
-        theme = st.selectbox("Theme", ["Light", "Dark", "System Default"])
+        theme = st.selectbox("Theme", ["Dark", "Light", "System Default"], index=0)
         
         # Layout
         layout = st.selectbox("Default View", ["Calendar View", "List View"])
