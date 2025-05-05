@@ -336,14 +336,11 @@ def show_student_dashboard():
                     <p><strong>Time:</strong> {start} - {end}</p>
                     <p><strong>Location:</strong> {cls['location']}</p>
                     <p><strong>Status:</strong> <span style="color:{status_color}">{cls['status']}</span></p>
-                    
-                    <div style="display:flex;justify-content:flex-end">
-                        <button style="background-color:#4CAF50;color:white;border:none;padding:10px 15px;border-radius:5px;cursor:pointer;">
-                            Check-in
-                        </button>
-                    </div>
                 </div>
                 """, unsafe_allow_html=True)
+                
+                # Add check-in button outside HTML using Streamlit's native button
+                st.button("Check-in", key=f"checkin_{cls['course_code']}")
         else:
             st.info("No more classes scheduled for today.")
         
@@ -492,7 +489,9 @@ def show_professor_dashboard():
                 "Select Course",
                 options=[f"{c['code']}: {c['title']}" for c in professor_courses]
             )
-            course_id = professor_courses[0]['id']  # Just use the first course for the demo
+            selected_idx = [f"{c['code']}: {c['title']}" for c in professor_courses].index(selected_course)
+            course = professor_courses[selected_idx]
+            course_id = course['id']
             
             # Today's class
             st.subheader("Today's Class")
@@ -502,23 +501,22 @@ def show_professor_dashboard():
             start_time = now.replace(hour=9 + course_id*2, minute=0)
             end_time = now.replace(hour=10 + course_id*2, minute=30)
             
+            # Display the card without buttons
             st.markdown(f"""
             <div class="attendance-card">
-                <h3>{professor_courses[0]['code']}: {professor_courses[0]['title']}</h3>
+                <h3>{course['code']}: {course['title']}</h3>
                 <p><strong>Time:</strong> {start_time.strftime('%I:%M %p')} - {end_time.strftime('%I:%M %p')}</p>
                 <p><strong>Location:</strong> Building {course_id}, Room {101 + course_id*10}</p>
                 <p><strong>Students Enrolled:</strong> {len([s for s in DEMO_STUDENTS if course_id in s['courses']])}</p>
-                
-                <div style="display:flex;justify-content:flex-end">
-                    <button style="background-color:#4CAF50;color:white;border:none;padding:10px 15px;border-radius:5px;cursor:pointer;margin-right:10px;">
-                        Take Attendance
-                    </button>
-                    <button style="background-color:#2196F3;color:white;border:none;padding:10px 15px;border-radius:5px;cursor:pointer;">
-                        View Roster
-                    </button>
-                </div>
             </div>
             """, unsafe_allow_html=True)
+            
+            # Add buttons using Streamlit's native components
+            btn_col1, btn_col2 = st.columns(2)
+            with btn_col1:
+                st.button("Take Attendance", key="take_attendance_btn", type="primary")
+            with btn_col2:
+                st.button("View Roster", key="view_roster_btn")
             
             # Attendance analytics
             st.subheader("Attendance Analytics")
@@ -573,12 +571,12 @@ def show_professor_dashboard():
             for student in course_students:
                 # Random attendance data
                 absences = random.randint(0, 5)
-                if absences >= professor_courses[0]['max_absences'] * 0.75:
+                if absences >= course['max_absences'] * 0.75:
                     at_risk_data.append({
                         "Student ID": student['student_id'],
                         "Name": student['name'],
                         "Absences": absences,
-                        "Max Allowed": professor_courses[0]['max_absences'],
+                        "Max Allowed": course['max_absences'],
                         "Last Attended": (now - timedelta(days=random.randint(1, 14))).strftime('%m/%d/%Y')
                     })
             
@@ -599,9 +597,9 @@ def show_professor_dashboard():
                 # Action buttons
                 col_a, col_b = st.columns(2)
                 with col_a:
-                    st.button("Send Warning Notifications")
+                    st.button("Send Warning Notifications", key="send_warnings")
                 with col_b:
-                    st.button("Contact Students")
+                    st.button("Contact Students", key="contact_students")
             else:
                 st.success("No students at risk for this course!")
         else:
@@ -610,10 +608,10 @@ def show_professor_dashboard():
     with col2:
         # Quick actions
         st.subheader("Quick Actions")
-        st.button("Take Attendance")
-        st.button("Generate Attendance Report")
-        st.button("Send Class Announcement")
-        st.button("Schedule Special Session")
+        st.button("Take Attendance", key="quick_take_attendance")
+        st.button("Generate Attendance Report", key="generate_report")
+        st.button("Send Class Announcement", key="send_announcement")
+        st.button("Schedule Special Session", key="schedule_session")
         
         # Upcoming schedule
         st.subheader("Upcoming Schedule")
@@ -985,7 +983,7 @@ def show_professor_attendance():
                 mime="text/csv"
             )
         with col2:
-            st.button("Email Report to Department")
+            st.button("Email Report to Department", key="email_report")
     else:
         st.info("No courses available in the demo for this professor.")
 
@@ -1030,6 +1028,9 @@ def show_schedule():
         for course in user_courses:
             # Assign each course to specific days and times
             days = []
+            time_index = 0
+            
+            # Different schedules based on course ID
             if course['id'] == 1:  # CS101
                 days = ["Monday", "Wednesday", "Friday"]
                 time_index = 1  # 9:00 AM
@@ -1039,14 +1040,30 @@ def show_schedule():
             elif course['id'] == 3:  # ENG105
                 days = ["Monday", "Wednesday"]
                 time_index = 6  # 2:00 PM
+            elif course['id'] == 4:  # PHYS101
+                days = ["Tuesday", "Thursday"]
+                time_index = 2  # 10:00 AM
+            elif course['id'] == 5:  # CHEM110
+                days = ["Monday", "Wednesday", "Friday"]
+                time_index = 4  # 12:00 PM
+            elif course['id'] == 6:  # BIO120
+                days = ["Tuesday", "Friday"]
+                time_index = 5  # 1:00 PM
+            elif course['id'] == 7:  # CS201
+                days = ["Monday", "Wednesday"]
+                time_index = 7  # 3:00 PM
+            elif course['id'] == 8:  # HIST101
+                days = ["Tuesday", "Thursday"]
+                time_index = 8  # 4:00 PM
             
-            # Add course to schedule
-            for day in days:
-                schedule_data[time_index][day] = f"{course['code']}\n{course['title']}"
-                
-                # Classes are 1.5 hours long (cover next slot too)
-                if time_index + 1 < len(time_slots):
-                    schedule_data[time_index + 1][day] = f"{course['code']} (cont.)"
+            # Add course to schedule if days and time index were defined
+            if days and time_index < len(time_slots):
+                for day in days:
+                    schedule_data[time_index][day] = f"{course['code']}\n{course['title']}"
+                    
+                    # Classes are 1.5 hours long (cover next slot too)
+                    if time_index + 1 < len(time_slots):
+                        schedule_data[time_index + 1][day] = f"{course['code']} (cont.)"
         
         # Convert to DataFrame
         import pandas as pd
@@ -1312,7 +1329,7 @@ def show_ai_assistant():
     
     cols = st.columns(len(sample_questions))
     for i, col in enumerate(cols):
-        if col.button(sample_questions[i]):
+        if col.button(sample_questions[i], key=f"sample_q_{i}"):
             # Add sample question to chat history
             st.session_state.chat_history.append({
                 'role': 'user',
@@ -1375,7 +1392,7 @@ def show_settings():
             with col2:
                 st.time_input("Quiet Hours End", value=datetime.strptime("07:00", "%H:%M"))
         
-        st.button("Save Notification Settings")
+        st.button("Save Notification Settings", key="save_notifications")
     
     with tab2:
         st.subheader("Display Settings")
@@ -1395,7 +1412,7 @@ def show_settings():
         st.subheader("Preview")
         st.info("Theme preview would be displayed here in the full version.")
         
-        st.button("Save Display Settings")
+        st.button("Save Display Settings", key="save_display")
     
     with tab3:
         st.subheader("Account Settings")
@@ -1409,29 +1426,29 @@ def show_settings():
             st.text_input("Current Password", type="password")
             st.text_input("New Password", type="password")
             st.text_input("Confirm New Password", type="password")
-            st.button("Update Password")
+            st.button("Update Password", key="update_pwd")
         
         # Integrations
         with st.expander("Calendar Integration"):
             st.checkbox("Sync with Google Calendar", value=True)
             st.checkbox("Sync with Outlook Calendar", value=False)
             st.checkbox("Sync with Apple Calendar", value=False)
-            st.button("Configure Calendar Integration")
+            st.button("Configure Calendar Integration", key="config_calendar")
         
         # Data export
         with st.expander("Export Data"):
             st.radio("Export Format", ["CSV", "Excel", "JSON"])
             col1, col2 = st.columns(2)
             with col1:
-                st.button("Export Attendance Data")
+                st.button("Export Attendance Data", key="export_attendance")
             with col2:
-                st.button("Export All Data")
+                st.button("Export All Data", key="export_all")
         
         # Delete account
         with st.expander("Delete Account"):
             st.warning("Deleting your account will remove all your data from the system. This action cannot be undone.")
             st.text_input("Type 'DELETE' to confirm", key="delete_confirmation")
-            st.button("Delete Account")
+            st.button("Delete Account", key="delete_account")
 
 if __name__ == "__main__":
     main()
