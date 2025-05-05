@@ -123,10 +123,15 @@ def main():
         font-weight: bold;
     }
     
-    /* Style dataframes */
+    /* Style dataframes - Default table styling */
     .dataframe {
         background-color: #2a2a3a !important;
         color: white !important;
+    }
+    
+    /* Special style for attendance table to ensure black text */
+    .attendance-overview-table {
+        color: black !important;
     }
     
     /* Chat message styling */
@@ -374,19 +379,23 @@ def show_student_dashboard():
         import pandas as pd
         df = pd.DataFrame(attendance_data)
         
-        # Custom styles based on absence warning
+        # Custom styles based on absence warning with black text
         def highlight_absences(row):
             absences = row['Absences']
             max_absences = row['Max Absences']
             
             if absences >= max_absences:
-                return ['background-color: #FFCCCB'] * len(row)
+                return ['background-color: #FFCCCB; color: black'] * len(row)
             elif absences >= max_absences * 0.75:
-                return ['background-color: #FFFFCC'] * len(row)
-            return [''] * len(row)
+                return ['background-color: #FFFFCC; color: black'] * len(row)
+            return ['color: black'] * len(row)
         
         # Apply styling and display
         styled_df = df.style.apply(highlight_absences, axis=1)
+        
+        # Add a class to the container for specific styling
+        st.markdown('<div class="attendance-overview-table">', unsafe_allow_html=True)
+        
         st.dataframe(
             styled_df,
             column_config={
@@ -406,6 +415,9 @@ def show_student_dashboard():
             hide_index=True,
             use_container_width=True
         )
+        
+        # Close the container div
+        st.markdown('</div>', unsafe_allow_html=True)
         
         # Show warning if approaching absence limit
         for idx, row in df.iterrows():
