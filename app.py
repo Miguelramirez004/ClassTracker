@@ -1298,7 +1298,7 @@ def show_ai_assistant():
         })
         
         # Rerun to update the display
-        st.experimental_rerun()
+        st.rerun()
     
     # Sample questions
     st.subheader("Sample Questions")
@@ -1339,7 +1339,7 @@ def show_ai_assistant():
             })
             
             # Rerun to update the display
-            st.experimental_rerun()
+            st.rerun()
 
 def show_settings():
     """Display settings page"""
