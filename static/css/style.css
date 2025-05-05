@@ -1,0 +1,87 @@
+/* Main styles */
+.stApp {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.main-header {
+    background-color: #f0f2f6;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+}
+
+/* Cards and containers */
+.attendance-card {
+    background-color: white;
+    border-radius: 5px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.notification-item {
+    border-left: 3px solid #ff4b4b;
+    padding-left: 10px;
+    margin-bottom: 10px;
+}
+
+.warning-threshold {
+    color: #ff4b4b;
+    font-weight: bold;
+}
+
+/* Schedule table */
+.schedule-table td {
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.schedule-table th {
+    text-align: center;
+    background-color: #f2f2f2;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.class-cell {
+    background-color: #e6f7ff;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+/* Chat UI */
+.chat-message {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.chat-message-user {
+    background-color: #e6f7ff;
+    text-align: right;
+}
+
+.chat-message-ai {
+    background-color: #f0f0f0;
+}
+
+/* Custom buttons */
+.primary-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.secondary-button {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
