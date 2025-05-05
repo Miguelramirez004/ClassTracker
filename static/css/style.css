@@ -2,21 +2,63 @@
 .stApp {
     max-width: 1200px;
     margin: 0 auto;
+    background-color: #1a1a2e;
+    color: white;
 }
 
 .main-header {
-    background-color: #f0f2f6;
-    padding: 1rem;
-    margin-bottom: 1rem;
+    background-color: #1e1e2e;
+    color: white;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
     border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.main-header h2 {
+    margin: 0;
+    padding: 0;
+    font-size: 2rem;
+}
+
+.main-header p {
+    margin: 0.5rem 0 0 0;
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+/* Text inputs styling */
+.stTextInput>div>div>input, 
+.stTextArea>div>div>textarea,
+.stSelectbox>div>div>div>div>div>input {
+    background-color: #2e2e3e !important;
+    color: white !important;
+    border: 1px solid #4e4e5e !important;
+    border-radius: 5px !important;
+    padding: 12px 15px !important;
+    font-size: 16px !important;
+}
+
+.stTextInput>div>div>input:focus, 
+.stTextArea>div>div>textarea:focus,
+.stSelectbox>div>div>div>div>div>input:focus {
+    border-color: #6e6e8e !important;
+    box-shadow: 0 0 0 1px #6e6e8e !important;
+}
+
+/* Placeholders */
+.stTextInput>div>div>input::placeholder,
+.stTextArea>div>div>textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
 }
 
 /* Cards and containers */
 .attendance-card {
-    background-color: white;
+    background-color: #2a2a3a;
+    color: white;
     border-radius: 5px;
     padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     margin-bottom: 1rem;
 }
 
@@ -35,36 +77,52 @@
 .schedule-table td {
     text-align: center;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid #444;
+    color: white;
+    background-color: #2a2a3a;
 }
 
 .schedule-table th {
     text-align: center;
-    background-color: #f2f2f2;
+    background-color: #3a3a4a;
+    color: white;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid #444;
 }
 
 .class-cell {
-    background-color: #e6f7ff;
+    background-color: #3e3e5e;
     border-radius: 5px;
     padding: 5px;
 }
 
 /* Chat UI */
 .chat-message {
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    max-width: 80%;
 }
 
 .chat-message-user {
-    background-color: #e6f7ff;
+    background-color: #3e3e5e;
+    color: white;
+    margin-left: auto;
+    margin-right: 10px;
     text-align: right;
 }
 
 .chat-message-ai {
-    background-color: #f0f0f0;
+    background-color: #1e1e2e;
+    color: white;
+    margin-right: auto;
+    margin-left: 10px;
+    border: 1px solid #3e3e5e;
+}
+
+.chat-input-container {
+    margin-top: 20px;
+    margin-bottom: 10px;
 }
 
 /* Custom buttons */
@@ -84,4 +142,36 @@
     padding: 10px 15px;
     border-radius: 5px;
     cursor: pointer;
+}
+
+/* Streamlit widgets styling */
+.stButton>button {
+    background-color: #ff5a5f;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.stButton>button:hover {
+    background-color: #ff3d42;
+}
+
+/* Dark theme styles for dataframes and expanders */
+.element-container div[data-testid="stDataFrame"] {
+    background-color: #2a2a3a;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.element-container div[data-testid="stExpander"] {
+    background-color: #2a2a3a;
+    border-radius: 5px;
+    border: 1px solid #3e3e5e;
+}
+
+/* Misc UI elements */
+div.stRadio label, div.stCheckbox label, div.stSlider label {
+    color: white !important;
 }
