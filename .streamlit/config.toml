@@ -1,0 +1,22 @@
+[server]
+enableXsrfProtection = true
+headless = true
+
+[theme]
+base = "dark"
+primaryColor = "#ff5a5f"
+backgroundColor = "#1a1a2e"
+secondaryBackgroundColor = "#2a2a3a"
+textColor = "#ffffff"
+
+[global]
+developmentMode = false
+
+[browser]
+gatherUsageStats = false
+
+[deprecation]
+showPyplotGlobalUse = false
+
+[logger]
+level = "info"
