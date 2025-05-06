@@ -45,14 +45,11 @@ class AttendancePolicyAssistant:
             for text in policy_texts:
                 splits.extend(text_splitter.split_text(text))
             
-            # Create vector store
-            if not os.path.exists("chroma_db"):
-                os.makedirs("chroma_db")
-            
+            # Create vector store IN MEMORY instead of persistent storage to avoid SQLite issues
             self.vectorstore = Chroma.from_texts(
                 texts=splits,
                 embedding=self.embedding_model,
-                persist_directory="chroma_db"
+                # No persist_directory parameter = in-memory storage
             )
             
             # Create retrieval chain
@@ -81,6 +78,47 @@ class AttendancePolicyAssistant:
         policy_texts = []
         
         if not os.path.exists(self.policy_dir):
+            # Fallback to a hardcoded policy if the directory doesn't exist
+            policy_texts.append("""
+            UNIVERSITY ATTENDANCE POLICY
+
+            1. General Attendance Requirements
+
+            Regular attendance is required for all courses. Students are expected to attend all classes for the courses in which they are registered.
+
+            2. Absence Limits
+
+            2.1 Each course syllabus will specify the number of allowed absences (typically 3-4 for a semester-long course).
+
+            2.2 Exceeding the allowed number of absences may result in automatic failure of the course.
+
+            3. Excused Absences
+
+            3.1 Absences may be excused for the following reasons:
+            - Illness (with medical documentation)
+            - Religious observances
+            - University-sponsored activities
+            - Family emergencies
+            - Legal obligations
+
+            3.2 Documentation must be provided to the instructor within one week of the absence.
+
+            4. Late Arrivals and Early Departures
+
+            4.1 Arriving more than 15 minutes late or leaving more than 15 minutes early may be counted as an absence.
+
+            4.2 Three late arrivals or early departures may be counted as one absence.
+
+            5. Make-up Work
+
+            5.1 Students with excused absences are responsible for arranging to make up missed work.
+
+            5.2 Make-up work must be completed within one week of returning to class.
+
+            6. Appeals
+
+            6.1 Students may appeal attendance-related decisions to the department chair and then to the dean of the college.
+            """)
             return policy_texts
         
         for filename in os.listdir(self.policy_dir):
