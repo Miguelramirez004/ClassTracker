@@ -8,6 +8,9 @@ from streamlit_option_menu import option_menu
 # Import config and placeholder data
 from config import DEMO_STUDENTS, DEMO_PROFESSORS, DEMO_COURSES
 
+# Import chatbot component
+from components.chatbot import answer_policy_question, setup_chatbot
+
 # Configure page
 st.set_page_config(
     page_title="ClassTracker Demo",
@@ -74,6 +77,10 @@ def main():
     
     if 'user_id' not in st.session_state:
         st.session_state.user_id = None
+    
+    # Initialize chat history
+    if 'chat_history' not in st.session_state:
+        st.session_state.chat_history = []
     
     # Apply global styling for text inputs and dark theme
     st.markdown("""
@@ -478,7 +485,23 @@ def show_student_dashboard():
         st.subheader("Ask About Attendance Policy")
         policy_question = st.text_input("Type your question here...")
         if st.button("Ask"):
-            st.info("This is a demo. In the full version, the AI would answer your question about attendance policies using the university's documents.")
+            if policy_question:
+                # Use the RAG-based policy assistant
+                with st.spinner("Analyzing attendance policy..."):
+                    response = answer_policy_question(policy_question)
+                    
+                # Add to chat history
+                st.session_state.chat_history.append({
+                    'role': 'user',
+                    'content': policy_question
+                })
+                st.session_state.chat_history.append({
+                    'role': 'assistant',
+                    'content': response
+                })
+                
+                # Show the response
+                st.success("Question answered! See full conversation in the AI Assistant tab.")
 
 def show_professor_dashboard():
     """Display the professor dashboard"""
@@ -1203,6 +1226,9 @@ def show_ai_assistant():
     Ask any questions about the university's attendance policies, and our AI will provide answers based on official policy documents.
     """)
     
+    # Initialize the chatbot
+    chatbot = setup_chatbot()
+    
     # Mock policy document display
     with st.expander("View University Attendance Policy"):
         st.markdown("""
@@ -1249,10 +1275,6 @@ def show_ai_assistant():
     # Chat interface
     st.subheader("Ask a Question")
     
-    # Chat history in session state
-    if 'chat_history' not in st.session_state:
-        st.session_state.chat_history = []
-    
     # Display chat history
     for message in st.session_state.chat_history:
         if message['role'] == 'user':
@@ -1272,53 +1294,19 @@ def show_ai_assistant():
     
     # Input for new question wrapped in a div with the chat-input-container class
     st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
-    user_question = st.text_input("What can I help you with today?")
+    user_question = st.text_input("What can I help you with today?", key="ai_question_input")
     st.markdown('</div>', unsafe_allow_html=True)
     
-    if st.button("Send") and user_question:
+    if st.button("Send", key="send_ai_question") and user_question:
         # Add user message to chat history
         st.session_state.chat_history.append({
             'role': 'user',
             'content': user_question
         })
         
-        # Generate mock AI response
-        if "absence" in user_question.lower() and "excuse" in user_question.lower():
-            ai_response = """
-            According to the university attendance policy, absences may be excused for illness (with medical documentation), religious observances, university-sponsored activities, family emergencies, and legal obligations.
-            
-            To get an absence excused, you must provide documentation to your instructor within one week of the absence. For medical absences, a doctor's note is required.
-            """
-        elif "late" in user_question.lower():
-            ai_response = """
-            According to Section 4.1 of the attendance policy, arriving more than 15 minutes late to class or leaving more than 15 minutes early may be counted as an absence.
-            
-            Additionally, Section 4.2 states that three late arrivals or early departures may be counted as one absence. This is at the discretion of your instructor and should be detailed in your course syllabus.
-            """
-        elif "fail" in user_question.lower() or "grade" in user_question.lower():
-            ai_response = """
-            According to Section 2.2 of the university attendance policy, exceeding the allowed number of absences may result in automatic failure of the course.
-            
-            The specific number of allowed absences is typically 3-4 for a semester-long course, but this can vary. Check your course syllabus for the exact number allowed in your specific course.
-            """
-        elif "appeal" in user_question.lower():
-            ai_response = """
-            If you want to appeal an attendance-related decision, Section 6.1 of the policy states that you may appeal to the department chair first, and then to the dean of the college if needed.
-            
-            It's recommended to prepare documentation supporting your case before initiating an appeal process.
-            """
-        elif "make" in user_question.lower() and "up" in user_question.lower():
-            ai_response = """
-            According to Section 5 of the attendance policy, students with excused absences are responsible for arranging to make up missed work with their instructors.
-            
-            Make-up work must be completed within one week of returning to class. It's best to contact your instructor as soon as possible to make these arrangements.
-            """
-        else:
-            ai_response = """
-            Based on the university's attendance policy, regular attendance is required for all courses. Each course syllabus specifies the number of allowed absences (typically 3-4 for a semester).
-            
-            For more specific information, please refer to your course syllabus or ask a more specific question about the attendance policy.
-            """
+        # Get response using RAG assistant
+        with st.spinner("Analyzing attendance policy..."):
+            ai_response = answer_policy_question(user_question)
         
         # Add AI response to chat history
         st.session_state.chat_history.append({
@@ -1348,23 +1336,14 @@ def show_ai_assistant():
                 'content': sample_questions[i]
             })
             
-            # Generate response based on question index
-            responses = [
-                "According to Section 3.1 of the policy, absences may be excused for: illness (with medical documentation), religious observances, university-sponsored activities, family emergencies, and legal obligations. You must provide documentation within one week of the absence.",
-                
-                "The university policy typically allows 3-4 absences for a semester-long course, but the exact number is specified in your course syllabus. Exceeding this limit may result in automatic failure of the course according to Section 2.2.",
-                
-                "According to Section 4.1, arriving more than 15 minutes late or leaving more than 15 minutes early may be counted as an absence. Section 4.2 states that three late arrivals or early departures may count as one absence.",
-                
-                "Yes, Section 6.1 of the policy allows you to appeal attendance-related decisions. First appeal to the department chair, and if needed, you can then appeal to the dean of the college.",
-                
-                "If you miss a test due to an excused absence like illness, Section 5 states you are responsible for arranging to make up missed work. You'll need medical documentation, and the make-up work must be completed within one week of returning to class."
-            ]
+            # Get response using RAG assistant
+            with st.spinner("Analyzing attendance policy..."):
+                ai_response = answer_policy_question(sample_questions[i])
             
             # Add AI response to chat history
             st.session_state.chat_history.append({
                 'role': 'assistant',
-                'content': responses[i]
+                'content': ai_response
             })
             
             # Rerun to update the display
@@ -1428,6 +1407,14 @@ def show_settings():
     
     with tab3:
         st.subheader("Account Settings")
+        
+        # AI API Settings
+        with st.expander("AI Assistant Settings"):
+            st.text_input("OpenAI API Key", type="password", help="Used for the AI attendance policy assistant")
+            st.selectbox("LLM Model", ["gpt-3.5-turbo", "gpt-4o"], index=0)
+            st.slider("Temperature", min_value=0.0, max_value=1.0, value=0.0, step=0.1, 
+                     help="Higher values make the AI more creative, lower values make it more deterministic")
+            st.button("Save AI Settings", key="save_ai")
         
         # Personal info
         st.text_input("Name", value=st.session_state.user_name)
